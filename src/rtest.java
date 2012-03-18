@@ -151,16 +151,23 @@ wood.draw(canvas);
 	}
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		if(e.getPointerCount() > 1)
+		int c = e.getPointerCount();
+		for(int i = 0;i<c;++i)
 		{
-			bx2 = e.getX(e.getPointerId(1));
-			by2 = e.getY(e.getPointerId(1));
-			mBallX = e.getX(e.getPointerId(0));
-			mBallY = e.getY(e.getPointerId(0));
-		} else
-		{
-			mBallX = e.getX();
-			mBallY = e.getY();
+			int id = e.getPointerId(i);
+			if(id>1) continue;
+			float x, y;
+			x = e.getX(i);
+			y = e.getY(i);
+			if(id==0)
+			{
+				mBallX = x;
+				mBallY = y;
+			} else
+			{
+				bx2 = x;
+				by2 = y;
+			}
 		}
 		return true;
 	}
