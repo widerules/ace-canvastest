@@ -28,7 +28,7 @@ public class rtest extends View {
 	private float mBallX = 0;
 	private float mBallY = 0;
 	private float bx2 = 0, by2 = 0;
-	private int framerate = 25;
+	private int framerate = 60;
 	private Drawable wood;
 	private static final String TAG = "MyLog";
 
@@ -102,7 +102,7 @@ Log.d(TAG, "ox, oy = " + ox + "," + oy);
 	public void onDraw(Canvas canvas) {
 		float mUnit = 70.0f; //200.0f;
 
-wood.draw(canvas);
+//wood.draw(canvas);
 		for(int i=0;i<4;++i)
 		{
 			int color1, color2;
