@@ -4,14 +4,17 @@ import android.view.View;
 import android.view.MotionEvent;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Style;
+import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.graphics.RadialGradient;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -28,9 +31,12 @@ public class rtest extends View {
 	private float mBallX = 0;
 	private float mBallY = 0;
 	private float bx2 = 0, by2 = 0;
-	private int framerate = 60;
-	private Drawable wood;
+	private int framerate = 100;
 	private static final String TAG = "MyLog";
+	private Bitmap woodbm;
+	private BitmapShader woodshader;
+	private long starttime;
+	private float fps = 0.0f;
 
 	public rtest(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -46,8 +52,11 @@ public class rtest extends View {
 		height = h;
 		centerx = w / 2;
 		centery = h / 2;
-		wood=this.getResources().getDrawable(R.drawable.wood);
-//		wood=this.getResources().getDrawable(R.drawable.boxtest);
+		woodbm = BitmapFactory.decodeResource(getResources(), R.drawable.wood);
+		woodshader = new BitmapShader(woodbm,
+				TileMode.REPEAT, TileMode.REPEAT);
+
+
 
 		// Schedule a redraw
 		TimerTask redrawTask = new TimerTask() {
@@ -57,7 +66,7 @@ public class rtest extends View {
 		};
 		mTimer = new Timer(true);
 		mTimer.schedule(redrawTask, 0, 1000/*ms*/ / framerate);
-
+		starttime = System.currentTimeMillis();
 
 	}
 	@Override
@@ -72,29 +81,6 @@ public class rtest extends View {
 		mBallY = centery;
 		bx2 = centerx;
 		by2 = centery;
-		int sw = wood.getIntrinsicWidth();
-		int sh = wood.getIntrinsicHeight();
-		int tw = sw, th = sh;
-		if(w!=0 && h!=0)
-		{
-			tw = sh * w / h;
-			th = sw * h / w;
-			if(tw > sw)
-				tw = sw;
-			else
-				th = sh;
-		}
-		int ox, oy;
-		ox = (sw - tw) / 2;
-		oy = (sh - th) / 2;
-
-		ox = ox * w / tw;
-		oy = oy * h / th;
-
-		wood.setBounds(-ox, -oy, w+ox, h+oy);
-
-Log.d(TAG, "ox, oy = " + ox + "," + oy);
-
 
 	}
 
@@ -102,7 +88,9 @@ Log.d(TAG, "ox, oy = " + ox + "," + oy);
 	public void onDraw(Canvas canvas) {
 		float mUnit = 70.0f; //200.0f;
 
-//wood.draw(canvas);
+		paint.setShader(woodshader);
+		canvas.drawPaint(paint);
+
 		for(int i=0;i<4;++i)
 		{
 			int color1, color2;
@@ -143,10 +131,17 @@ Log.d(TAG, "ox, oy = " + ox + "," + oy);
 		}
 		paint.setColor(Color.WHITE);
 		paint.setStyle(Style.FILL);
-		++framecount;
+		if(++framecount == 20)
+		{
+			long now = System.currentTimeMillis();
+			long delta = now - starttime;
+			starttime = now;
+			fps = framecount * 1000.0f/ delta;
+		}
 
-		canvas.drawText(String.format("Some text: %dx%d frame %.2f",
-			width, height, framecount/(float)framerate),
+
+		canvas.drawText(String.format("Some text: %dx%d fps %.2f",
+			width, height, fps),
 			 15, 10, paint);
 	}
 	@Override
